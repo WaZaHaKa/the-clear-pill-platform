@@ -1,0 +1,18 @@
+import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = globalThis as unknown as { clearPillPrisma?: PrismaClient };
+
+export const db =
+  globalForPrisma.clearPillPrisma ??
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error", "warn"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.clearPillPrisma = db;
+}
+
+export * from "@prisma/client";

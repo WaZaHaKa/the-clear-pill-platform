@@ -1,0 +1,19 @@
+{
+  "name": "@clearpill/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clearpill/db": "*",
+    "@clearpill/planning-core": "*",
+    "@clearpill/planning-service": "*",
+    "tsx": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,330 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MemberRole {
+  OWNER
+  MANAGER
+  MEMBER
+  VIEWER
+}
+
+enum PlanHorizon {
+  FIVE_YEAR
+  YEAR
+  QUARTER
+  MONTH
+  WEEK
+}
+
+enum PlanStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETE
+  ARCHIVED
+}
+
+enum ObjectiveStatus {
+  DRAFT
+  ACTIVE
+  AT_RISK
+  COMPLETE
+  CANCELLED
+}
+
+enum WorkItemStatus {
+  BACKLOG
+  READY
+  BLOCKED
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum GenerationStatus {
+  STARTED
+  SUCCEEDED
+  FAILED
+}
+
+enum MissionStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+  SKIPPED
+  RESCHEDULED
+}
+
+enum MissionSource {
+  DETERMINISTIC
+  AI_PROPOSED
+  MANUAL
+}
+
+enum MissionEventType {
+  CREATED
+  STARTED
+  COMPLETED
+  SKIPPED
+  RESCHEDULED
+  NOTE_ADDED
+}
+
+model Workspace {
+  id                      String                 @id @default(uuid()) @db.Uuid
+  slug                    String                 @unique
+  name                    String
+  timezone                String                 @default("Asia/Jerusalem")
+  missionGenerationMinute Int                    @default(480)
+  dailyCapacityMinutes    Int                    @default(180)
+  maxDailyMissions        Int                    @default(3)
+  isActive                Boolean                @default(true)
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  memberships             WorkspaceMember[]
+  plans                   Plan[]
+  objectives              Objective[]
+  workItems               WorkItem[]
+  checkIns                DailyCheckIn[]
+  reflections             DailyReflection[]
+  generationRuns          MissionGenerationRun[]
+  dailyMissions           DailyMission[]
+  auditEvents             AuditEvent[]
+}
+
+model User {
+  id             String                 @id @default(uuid()) @db.Uuid
+  email          String                 @unique
+  displayName    String
+  locale         String                 @default("he-IL")
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  memberships    WorkspaceMember[]
+  ownedWorkItems WorkItem[]             @relation("WorkItemOwner")
+  checkIns       DailyCheckIn[]
+  reflections    DailyReflection[]
+  generationRuns MissionGenerationRun[]
+  dailyMissions  DailyMission[]
+  auditEvents    AuditEvent[]           @relation("AuditActor")
+}
+
+model WorkspaceMember {
+  id          String      @id @default(uuid()) @db.Uuid
+  workspaceId String      @db.Uuid
+  userId      String      @db.Uuid
+  role        MemberRole  @default(MEMBER)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId, isActive])
+}
+
+model Plan {
+  id           String       @id @default(uuid()) @db.Uuid
+  workspaceId  String       @db.Uuid
+  parentPlanId String?      @db.Uuid
+  horizon      PlanHorizon
+  title        String
+  narrative    String
+  startDateKey String       @db.VarChar(10)
+  endDateKey   String       @db.VarChar(10)
+  status       PlanStatus   @default(DRAFT)
+  version      Int          @default(1)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  workspace    Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parentPlan   Plan?        @relation("PlanHierarchy", fields: [parentPlanId], references: [id], onDelete: SetNull)
+  childPlans   Plan[]       @relation("PlanHierarchy")
+  objectives   Objective[]
+
+  @@index([workspaceId, horizon, status])
+  @@index([parentPlanId])
+}
+
+model Objective {
+  id                String          @id @default(uuid()) @db.Uuid
+  workspaceId       String          @db.Uuid
+  planId            String          @db.Uuid
+  parentObjectiveId String?         @db.Uuid
+  title             String
+  description       String
+  status            ObjectiveStatus @default(DRAFT)
+  priority          Int             @default(50)
+  weight            Int             @default(100)
+  progressPercent   Int             @default(0)
+  targetDateKey     String?         @db.VarChar(10)
+  metricName        String?
+  metricTarget      Float?
+  metricCurrent     Float?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  workspace         Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan              Plan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  parentObjective   Objective?      @relation("ObjectiveHierarchy", fields: [parentObjectiveId], references: [id], onDelete: SetNull)
+  childObjectives   Objective[]     @relation("ObjectiveHierarchy")
+  workItems         WorkItem[]
+
+  @@index([workspaceId, status, priority])
+  @@index([planId])
+  @@index([parentObjectiveId])
+}
+
+model WorkItem {
+  id               String         @id @default(uuid()) @db.Uuid
+  workspaceId      String         @db.Uuid
+  objectiveId      String         @db.Uuid
+  ownerId          String?        @db.Uuid
+  title            String
+  description      String         @default("")
+  status           WorkItemStatus @default(BACKLOG)
+  estimatedMinutes Int            @default(30)
+  dueDateKey       String?        @db.VarChar(10)
+  availableDateKey String?        @db.VarChar(10)
+  impact           Int            @default(3)
+  urgency          Int            @default(3)
+  strategicFit     Int            @default(3)
+  revenueImpact    Int            @default(1)
+  dependencyUnlock Int            @default(1)
+  confidence       Int            @default(3)
+  requiredEnergy   EnergyLevel    @default(MEDIUM)
+  blockedReason    String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  workspace        Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  objective        Objective      @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  owner            User?          @relation("WorkItemOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  missions         DailyMission[]
+
+  @@index([workspaceId, ownerId, status])
+  @@index([objectiveId])
+  @@index([dueDateKey])
+}
+
+model DailyCheckIn {
+  id              String      @id @default(uuid()) @db.Uuid
+  workspaceId     String      @db.Uuid
+  userId          String      @db.Uuid
+  dateKey         String      @db.VarChar(10)
+  capacityMinutes Int
+  energy          EnergyLevel
+  focusText       String?
+  constraints     String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  workspace       Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId, dateKey])
+}
+
+model DailyReflection {
+  id           String    @id @default(uuid()) @db.Uuid
+  workspaceId  String    @db.Uuid
+  userId       String    @db.Uuid
+  dateKey      String    @db.VarChar(10)
+  wins         String?
+  blockers     String?
+  lesson       String?
+  tomorrowNote String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId, dateKey])
+}
+
+model MissionGenerationRun {
+  id             String           @id @default(uuid()) @db.Uuid
+  workspaceId    String           @db.Uuid
+  userId         String           @db.Uuid
+  dateKey        String           @db.VarChar(10)
+  idempotencyKey String           @unique
+  algorithm      String
+  status         GenerationStatus @default(STARTED)
+  inputSnapshot  Json
+  outputSnapshot Json?
+  errorMessage   String?
+  createdAt      DateTime         @default(now())
+  completedAt    DateTime?
+  workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  missions       DailyMission[]
+
+  @@index([workspaceId, userId, dateKey])
+}
+
+model DailyMission {
+  id               String          @id @default(uuid()) @db.Uuid
+  workspaceId      String          @db.Uuid
+  userId           String          @db.Uuid
+  workItemId       String          @db.Uuid
+  generationRunId  String?         @db.Uuid
+  dateKey          String          @db.VarChar(10)
+  sequence         Int
+  titleSnapshot    String
+  objectivePath    String
+  reason           String
+  score            Float
+  plannedMinutes   Int
+  status            MissionStatus   @default(PLANNED)
+  source            MissionSource   @default(DETERMINISTIC)
+  completionEvidence String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  workspace         Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workItem          WorkItem        @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+  generationRun     MissionGenerationRun? @relation(fields: [generationRunId], references: [id], onDelete: SetNull)
+  events            MissionEvent[]
+
+  @@unique([workspaceId, userId, dateKey, sequence])
+  @@unique([workItemId, dateKey])
+  @@index([workspaceId, userId, dateKey, status])
+}
+
+model MissionEvent {
+  id        String           @id @default(uuid()) @db.Uuid
+  missionId String           @db.Uuid
+  type      MissionEventType
+  note      String?
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  mission   DailyMission     @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@index([missionId, createdAt])
+}
+
+model AuditEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  workspaceId String    @db.Uuid
+  actorId     String?   @db.Uuid
+  eventType   String
+  entityType  String
+  entityId    String?
+  payload     Json
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actor       User?      @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+  @@index([entityType, entityId])
+}

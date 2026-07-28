@@ -1,0 +1,89 @@
+name: ${COMPOSE_PROJECT_NAME:-the-clear-pill}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-clear_pill}
+      POSTGRES_USER: ${POSTGRES_USER:-clear_pill}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - clear_pill_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clear_pill} -d ${POSTGRES_DB:-clear_pill}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - clear_pill_internal
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-clear_pill}
+      POSTGRES_USER: ${POSTGRES_USER:-clear_pill}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      DEMO_MODE: ${DEMO_MODE:-false}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
+      NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED:-1}
+      RUN_MIGRATIONS: "true"
+    secrets:
+      - postgres_password
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-3070}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - clear_pill_edge
+      - clear_pill_internal
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: worker
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-clear_pill}
+      POSTGRES_USER: ${POSTGRES_USER:-clear_pill}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      MISSION_WORKER_POLL_SECONDS: ${MISSION_WORKER_POLL_SECONDS:-60}
+      RUN_MIGRATIONS: "false"
+    secrets:
+      - postgres_password
+    depends_on:
+      db:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    networks:
+      - clear_pill_edge
+      - clear_pill_internal
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+
+volumes:
+  clear_pill_postgres:
+
+networks:
+  clear_pill_edge:
+  clear_pill_internal:
+    internal: true

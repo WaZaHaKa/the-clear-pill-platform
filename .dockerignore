@@ -1,0 +1,7 @@
+node_modules
+.next
+.git
+.env
+.env.*
+secrets/*.txt
+npm-debug.log*

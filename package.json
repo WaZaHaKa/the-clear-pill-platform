@@ -1,0 +1,29 @@
+{
+  "name": "the-clear-pill-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Clear Pill planning-first modular monolith starter",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@clearpill/web",
+    "build": "npm run build --workspace=@clearpill/web",
+    "start": "npm run start --workspace=@clearpill/web",
+    "worker": "npm run start --workspace=@clearpill/worker",
+    "db:generate": "prisma generate --schema packages/db/prisma/schema.prisma",
+    "db:migrate": "prisma migrate deploy --schema packages/db/prisma/schema.prisma",
+    "db:seed": "tsx packages/db/prisma/seed.ts",
+    "test": "npm run test --workspace=@clearpill/planning-core",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "prisma": "^6.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}
