@@ -10,6 +10,7 @@ import {
   saveCheckInAction,
   saveReflectionAction,
 } from "../actions";
+import { guardPrivatePage } from "../../private-page-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ function statusLabel(status: MissionStatus): string {
 }
 
 export default async function TodayPage() {
+  guardPrivatePage();
   if (process.env.DEMO_MODE !== "true") {
     return (
       <section className="emptyState">

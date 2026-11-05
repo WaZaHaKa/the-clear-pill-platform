@@ -1,5 +1,119 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
-export default function HomePage() {
-  redirect("/today");
+// Showcase only: no payment control. Processor, refund-window, receipt, and
+// identity-threshold sentences from the wording are omitted. Their unfilled
+// brackets are not rendered.
+
+type SearchParams = { lang?: string | string[] };
+
+function isHebrew(lang: string | string[] | undefined): boolean {
+  const value = Array.isArray(lang) ? lang[0] : lang;
+  return value === "he";
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const he = isHebrew(params.lang);
+  const title = he ? "תמיכה ב-WZHK מאת TSNO" : "Support WZHK by TSNO";
+  return {
+    title: { absolute: title },
+    description: he
+      ? "התוכן החינמי של WZHK פתוח לשימוש היום, בין אם תתמכו ובין אם לא."
+      : "WZHK's free content is free to use today, whether or not you give.",
+    openGraph: { title },
+    twitter: { title },
+  };
+}
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+  const he = isHebrew(params.lang);
+
+  return (
+    <article className="supportLanding" lang={he ? "he" : "en"} dir={he ? "rtl" : "ltr"}>
+      <nav className="langSwitch" dir="ltr" aria-label={he ? "שפה" : "Language"}>
+        <a href="/" hrefLang="en" lang="en" aria-current={he ? undefined : "page"}>
+          English
+        </a>
+        <a href="/?lang=he" hrefLang="he" lang="he" aria-current={he ? "page" : undefined}>
+          עברית
+        </a>
+      </nav>
+      {he ? <HebrewSupport /> : <EnglishSupport />}
+    </article>
+  );
+}
+
+function ComingSoon({ he }: { he: boolean }) {
+  return (
+    <button type="button" className="supportCta" disabled aria-disabled="true">
+      <span lang={he ? "he" : "en"} dir={he ? "rtl" : "ltr"}>
+        {he ? "בקרוב" : "Coming soon"}
+      </span>
+    </button>
+  );
+}
+
+function EnglishSupport() {
+  return (
+    <>
+      <h1>Support WZHK by TSNO</h1>
+      <p className="lede">WZHK&apos;s free content is free to use today, whether or not you give.</p>
+      <p>If you&apos;d like to support the work, you can send a voluntary gift.</p>
+      <section className="panel supportPanel">
+        <h2>Please read before you give:</h2>
+        <ul className="supportList">
+          <li>
+            Before gifts open, this page will say exactly who receives them and how they are recorded.
+            TSNO is the name of Albert&apos;s personal project. It is not a company, a registered
+            organisation or a charity, and gifts don&apos;t give you a tax credit.
+          </li>
+          <li>
+            A gift doesn&apos;t buy anything: no service, content, perks, priority or access. Giving or
+            not giving never changes what you can use for free. Paid services, if offered, are always
+            separate and clearly priced.
+          </li>
+        </ul>
+        <ComingSoon he={false} />
+        <p className="supportThanks">Thank you.</p>
+      </section>
+    </>
+  );
+}
+
+function HebrewSupport() {
+  return (
+    <>
+      <h1 className="supportTitleEn" lang="en" dir="ltr">
+        Support WZHK by TSNO
+      </h1>
+      <p className="supportSubtitle">תמיכה ב-WZHK</p>
+      <p className="lede">התוכן החינמי של WZHK פתוח לשימוש היום, בין אם תתמכו ובין אם לא.</p>
+      <p>אם תרצו לתמוך בעבודה, אפשר לשלוח מתנה מרצון.</p>
+      <section className="panel supportPanel">
+        <h2>חשוב לקרוא לפני שנותנים:</h2>
+        <ul className="supportList">
+          <li>
+            לפני שתיפתח האפשרות לתת, יופיע כאן בדיוק מי מקבל את המתנות ואיך הן נרשמות. TSNO הוא שם
+            הפרויקט האישי של אלברט. הוא אינו חברה, ארגון רשום או ארגון צדקה, ומתנה אינה מזכה בזיכוי
+            ממס.
+          </li>
+          <li>
+            המתנה אינה רוכשת דבר: לא שירות, לא תוכן, לא הטבות, לא עדיפות ולא גישה. מתן או אי-מתן
+            לעולם לא משנים את מה שזמין לכם בחינם. שירותים בתשלום, אם יוצעו, תמיד נפרדים ובמחיר ברור.
+          </li>
+        </ul>
+        <ComingSoon he />
+        <p className="supportThanks">תודה.</p>
+      </section>
+    </>
+  );
 }

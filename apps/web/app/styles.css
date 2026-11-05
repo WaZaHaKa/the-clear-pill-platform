@@ -27,6 +27,7 @@ button { cursor: pointer; }
   border-bottom: 1px solid var(--line); gap: 24px;
 }
 .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; }
+.brand:focus-visible { outline: 3px solid rgba(65, 105, 91, .35); outline-offset: 3px; border-radius: 8px; }
 .brandMark { color: var(--accent); font-size: 22px; }
 nav { display: flex; gap: 8px; }
 nav a { text-decoration: none; padding: 9px 14px; border-radius: 999px; }
@@ -126,4 +127,30 @@ details[open] > summary { margin-bottom: 22px; }
 @media (max-width: 700px) {
   .formGrid { grid-template-columns: 1fr; }
   .fullField { grid-column: auto; }
+}
+
+.supportLanding { width: min(40rem, 100%); margin-inline: auto; }
+.supportLanding[dir="rtl"] .supportTitleEn { text-align: end; }
+.supportSubtitle { margin-block: -6px 18px; color: var(--muted); font-size: 1.15rem; }
+.supportPanel h2 { margin: 0 0 14px; font-size: 1.15rem; }
+.supportList { margin: 0; padding-inline-start: 1.25rem; display: grid; gap: 12px; }
+.supportThanks { margin: 18px 0 0; font-weight: 700; }
+.langSwitch { display: flex; justify-content: flex-end; gap: 8px; margin: 0 0 28px; }
+.langSwitch a {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; min-width: 44px; padding-inline: 14px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface);
+  text-decoration: none;
+}
+.langSwitch a[aria-current="page"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+.langSwitch a:hover, .langSwitch a:focus-visible { outline: 3px solid rgba(65, 105, 91, .35); outline-offset: 2px; }
+.supportCta {
+  margin-block-start: 22px; min-height: 48px; padding-inline: 18px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px;
+}
+.supportCta:disabled, .supportCta[aria-disabled="true"] { cursor: not-allowed; opacity: 1; }
+.supportCta:disabled:hover, .supportCta[aria-disabled="true"]:hover { border-color: var(--line); }
+
+@media (max-width: 700px) {
+  .supportCta { width: 100%; }
 }
