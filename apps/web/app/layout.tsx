@@ -2,10 +2,19 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./styles.css";
 
-export const metadata: Metadata = {
-  title: "The Clear Pill",
-  description: "מערכת תכנון שמחברת חזון לפעולה יומית",
-};
+const siteDescription = {
+  en: "WZHK by TSNO — a personal project by Albert Shovtyuk.",
+  he: "WZHK by TSNO — פרויקט אישי של אלברט שובטיוק.",
+} as const;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const he = headerStore.get("x-clearpill-lang") === "he";
+  return {
+    title: "The Clear Pill",
+    description: he ? siteDescription.he : siteDescription.en,
+  };
+}
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const headerStore = await headers();

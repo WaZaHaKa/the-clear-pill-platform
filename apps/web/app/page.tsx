@@ -18,11 +18,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const params = await searchParams;
   const he = isHebrew(params.lang);
+  const title = he ? "תמיכה ב-WZHK מאת TSNO" : "Support WZHK by TSNO";
   return {
-    title: { absolute: "Support WZHK by TSNO" },
+    title: { absolute: title },
     description: he
       ? "כל התוכן ב-WZHK חינמי, והוא יישאר חינמי בין אם תתמכו ובין אם לא."
       : "Everything on WZHK is free, and it stays free whether or not you give.",
+    openGraph: { title },
+    twitter: { title },
   };
 }
 
@@ -49,11 +52,11 @@ export default async function HomePage({
   );
 }
 
-function ComingSoon() {
+function ComingSoon({ he }: { he: boolean }) {
   return (
     <button type="button" className="supportCta" disabled aria-disabled="true">
-      <span lang="en" dir="ltr">
-        Coming soon
+      <span lang={he ? "he" : "en"} dir={he ? "rtl" : "ltr"}>
+        {he ? "בקרוב" : "Coming soon"}
       </span>
     </button>
   );
@@ -77,7 +80,7 @@ function EnglishSupport() {
             Nothing on WZHK depends on whether you give.
           </li>
         </ul>
-        <ComingSoon />
+        <ComingSoon he={false} />
         <p className="supportThanks">Thank you.</p>
       </section>
     </>
@@ -105,7 +108,7 @@ function HebrewSupport() {
             דבר ב-WZHK אינו תלוי בכך שתתמכו.
           </li>
         </ul>
-        <ComingSoon />
+        <ComingSoon he />
         <p className="supportThanks">תודה.</p>
       </section>
     </>
