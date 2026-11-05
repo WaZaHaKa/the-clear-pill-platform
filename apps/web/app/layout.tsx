@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { headers } from "next/headers";
 import "./styles.css";
 
 export const metadata: Metadata = {
@@ -7,20 +7,19 @@ export const metadata: Metadata = {
   description: "מערכת תכנון שמחברת חזון לפעולה יומית",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const headerStore = await headers();
+  const he = headerStore.get("x-clearpill-lang") === "he";
+
   return (
-    <html lang="he" dir="rtl">
+    <html lang={he ? "he" : "en"} dir={he ? "rtl" : "ltr"}>
       <body>
         <div className="shell">
           <header className="topbar">
-            <Link className="brand" href="/today" aria-label="The Clear Pill — היום">
+            <a className="brand" href="/">
               <span className="brandMark" aria-hidden="true">●</span>
               <span>The Clear Pill</span>
-            </Link>
-            <nav aria-label="ניווט ראשי">
-              <Link href="/today">היום</Link>
-              <Link href="/plan">התכנית</Link>
-            </nav>
+            </a>
           </header>
           <main>{children}</main>
         </div>
