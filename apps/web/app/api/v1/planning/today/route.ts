@@ -1,6 +1,9 @@
 import { getTodayDashboard } from "@clearpill/planning-service";
+import { privatePlannerDeniedResponse } from "../../../../../private-pages";
 
 export async function GET(request: Request): Promise<Response> {
+  const denied = privatePlannerDeniedResponse();
+  if (denied) return denied;
   if (process.env.DEMO_MODE !== "true") {
     return Response.json({ error: "Authentication is not configured" }, { status: 403 });
   }

@@ -4,6 +4,12 @@ export function privatePagesEnabled(value?: string): boolean {
   return raw === "true";
 }
 
+/** 404 until private pages are explicitly enabled. Null means the caller may continue. */
+export function privatePlannerDeniedResponse(): Response | null {
+  if (!privatePagesEnabled()) return new Response(null, { status: 404 });
+  return null;
+}
+
 export function isPrivatePlannerPath(pathname: string): boolean {
   return (
     pathname === "/today" ||
