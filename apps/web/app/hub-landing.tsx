@@ -88,11 +88,11 @@ export function HubLanding({ lang, sales }: { lang: HubLang; sales: boolean }) {
           </article>
           <article className="panel portfolioCard">
             <h3>ATELIER ELENA</h3>
-            <p className="portfolioLabel">{he ? "עסק משפחתי" : "Family business"}</p>
+            <p className="portfolioLabel">{he ? "שלנו" : "Own"}</p>
             <p>
               {he
-                ? "אתר מותג ובובות בעבודת יד, עברית ואנגלית. (עסק משפחתי)"
-                : "Handmade-doll brand site, Hebrew and English. (Family business)"}
+                ? "אתר מותג ובובות בעבודת יד, עברית ואנגלית."
+                : "Handmade-doll brand site, Hebrew and English."}
             </p>
             <p className="portfolioLinks">
               <ExternalLink href="https://atelierelenadolls.com">atelierelenadolls.com</ExternalLink>

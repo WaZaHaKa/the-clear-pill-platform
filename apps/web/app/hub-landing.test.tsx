@@ -43,7 +43,9 @@ describe("hub sales sections stay off unless the flag is exactly true", () => {
     expect(html).toContain('data-section="support"');
     expect(html).toContain("Coming soon");
     expect(html).toContain('aria-disabled="true"');
-    expect(html).toContain("עסק משפחתי");
+    expect(html.match(/class="portfolioLabel">שלנו</g)).toHaveLength(2);
+    expect(html).not.toContain("עסק משפחתי");
+    expect(html).not.toContain("Family business");
     expect(html).toContain('dir="rtl"');
   });
 
@@ -52,7 +54,9 @@ describe("hub sales sections stay off unless the flag is exactly true", () => {
     expect(isHubSalesEnabled()).toBe(false);
     const html = htmlFor("false", "en");
     for (const marker of salesMarkers) expect(html).not.toContain(marker);
-    expect(html).toContain("Family business");
+    expect(html.match(/class="portfolioLabel">Own</g)).toHaveLength(2);
+    expect(html).not.toContain("Family business");
+    expect(html).not.toContain("עסק משפחתי");
     expect(html).toContain("Coming soon");
     expect(html).toContain('dir="ltr"');
     expect(html).not.toContain('data-section="sales-hero-cta"');
