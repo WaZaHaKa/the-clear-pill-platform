@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { documentIsHebrew } from "./hub-request";
 
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
-  const he =
-    pathname === "/today" ||
-    pathname === "/plan" ||
-    pathname.startsWith("/today/") ||
-    pathname.startsWith("/plan/") ||
-    searchParams.get("lang") === "he";
+  const he = documentIsHebrew(pathname, searchParams.get("lang"));
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-clearpill-lang", he ? "he" : "en");
   return NextResponse.next({

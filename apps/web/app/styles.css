@@ -129,10 +129,45 @@ details[open] > summary { margin-bottom: 22px; }
   .fullField { grid-column: auto; }
 }
 
+.hub { width: min(52rem, 100%); margin-inline: auto; }
+.hub h1 { font-size: clamp(1.8rem, 4vw, 3.1rem); }
+.hubHero { margin-block-end: 28px; }
+.hubPortfolio { margin-block-start: 12px; }
+.portfolioGrid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-block-start: 18px; }
+.portfolioCard h3 { margin: 0 0 8px; }
+.portfolioLabel {
+  display: inline-block; margin: 0 0 10px; border: 1px solid var(--line); border-radius: 999px;
+  padding: 4px 10px; font-weight: 800; background: var(--accent-soft);
+}
+.portfolioLinks { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0; }
+.portfolioLinks a {
+  display: inline-flex; align-items: center; min-height: 44px; font-weight: 700;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.portfolioLinks a:focus-visible { outline: 3px solid rgba(65, 105, 91, .35); outline-offset: 2px; }
+.salesList { margin: 0; padding-inline-start: 1.25rem; display: grid; gap: 8px; }
+.placeholder {
+  margin: 12px 0 0; padding: 10px 12px; border: 1px dashed var(--warm); border-radius: 12px;
+  background: #f8f1dc;
+}
+.supportShowcase {
+  margin-block-start: 36px; padding-block-start: 8px; border-block-start: 1px solid var(--line);
+}
 .supportLanding { width: min(40rem, 100%); margin-inline: auto; }
-.supportLanding[dir="rtl"] .supportTitleEn { text-align: end; }
+.supportLanding[dir="rtl"] .supportTitleEn,
+.hub[dir="rtl"] .supportTitleEn { text-align: end; }
+.supportName { font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; margin: 0 0 12px; }
 .supportSubtitle { margin-block: -6px 18px; color: var(--muted); font-size: 1.15rem; }
-.supportPanel h2 { margin: 0 0 14px; font-size: 1.15rem; }
+.supportPanel h3 { margin: 0 0 14px; font-size: 1.15rem; }
+.hubFooter {
+  margin-block-start: 28px; padding-block: 18px 4px; border-block-start: 1px solid var(--line); color: var(--muted);
+}
+.hubFooter a { font-weight: 700; }
+.hubFooter a:focus-visible { outline: 3px solid rgba(65, 105, 91, .35); outline-offset: 2px; }
+
+@media (min-width: 701px) {
+  .portfolioGrid { grid-template-columns: 1fr 1fr; }
+}
 .supportList { margin: 0; padding-inline-start: 1.25rem; display: grid; gap: 12px; }
 .supportThanks { margin: 18px 0 0; font-weight: 700; }
 .langSwitch { display: flex; justify-content: flex-end; gap: 8px; margin: 0 0 28px; }

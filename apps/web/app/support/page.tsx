@@ -9,5 +9,5 @@ export default async function SupportAliasPage({
 }): Promise<never> {
   const params = await searchParams;
   const lang = Array.isArray(params.lang) ? params.lang[0] : params.lang;
-  redirect(lang === "he" ? "/?lang=he" : "/");
+  redirect(lang === "en" ? "/?lang=en" : "/");
 }
