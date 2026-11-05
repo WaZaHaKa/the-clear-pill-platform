@@ -3,8 +3,8 @@ import { headers } from "next/headers";
 import "./styles.css";
 
 const siteDescription = {
-  en: "WZHK by TSNO — a personal project by Albert Shovtyuk.",
-  he: "WZHK by TSNO — פרויקט אישי של אלברט שובטיוק.",
+  en: "WZHK by TSNO — a personal project.",
+  he: "WZHK by TSNO — פרויקט אישי.",
 } as const;
 
 export async function generateMetadata(): Promise<Metadata> {
