@@ -10,8 +10,10 @@ import {
   updateMissionStatus,
 } from "@clearpill/planning-service";
 import { revalidatePath } from "next/cache";
+import { guardPrivatePage } from "../private-page-guard";
 
 function requireDemoMode(): void {
+  guardPrivatePage();
   if (process.env.DEMO_MODE !== "true") {
     throw new Error("Pilot actions are disabled until authentication is configured");
   }
