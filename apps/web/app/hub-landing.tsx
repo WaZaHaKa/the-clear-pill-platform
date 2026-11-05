@@ -3,8 +3,8 @@ import { EnglishSupport, HebrewSupport } from "./support-block";
 export type HubLang = "he" | "en";
 
 const portfolioSubhead = {
-  he: "אתרים, משפכי לידים ואוטומציה שבנינו עבור עסקים אמיתיים. ליד כל פרויקט כתוב אם הוא שלנו, של משפחה או של לקוח.",
-  en: "Sites, lead funnels and automation we built for real businesses. Next to each project it says whether it is ours, a family's, or a client's.",
+  he: "אתרים, משפכי לידים ואוטומציה שבנינו עבור עסקים אמיתיים. ליד כל פרויקט כתוב אם הוא שלנו או של לקוח.",
+  en: "Sites, lead funnels and automation we built for real businesses. Next to each project it says whether it is ours or a client's.",
 } as const;
 
 const salesCta = {
@@ -14,7 +14,7 @@ const salesCta = {
 
 function ExternalLink({ href, children }: { href: string; children: string }) {
   return (
-    <a href={href} rel="noopener" target="_blank">
+    <a href={href} rel="noopener noreferrer" target="_blank">
       {children}
     </a>
   );
@@ -105,7 +105,6 @@ export function HubLanding({ lang, sales }: { lang: HubLang; sales: boolean }) {
       {sales ? (
         <section className="panel" data-section="sales-terms">
           <h2>{he ? "תנאים בקצרה" : "Terms in brief"}</h2>
-          <p>{he ? "החזר כספי תוך 14 יום מעלייה לאוויר." : "14-day money-back guarantee from go-live."}</p>
           <p>{he ? "אין ניסיון חינם." : "No free trial."}</p>
           <p className="placeholder">{he ? "[ניסוח סופי של טוני, גרסה 16]" : "[Tony final v16 wording]"}</p>
         </section>

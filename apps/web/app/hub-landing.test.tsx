@@ -14,9 +14,15 @@ const salesMarkers = [
   "רוצים לשמוע איך זה יעבוד אצלכם? דברו איתנו",
   "Want to hear how this would work for you? Talk to us.",
   "14-day money-back guarantee from go-live.",
-  "No free trial.",
+  "money-back",
   "החזר כספי תוך 14 יום מעלייה לאוויר.",
+  "החזר",
+  "No free trial.",
   "אין ניסיון חינם.",
+  "[Tony final v16 wording]",
+  "[ניסוח סופי של טוני, גרסה 16]",
+  "[No price list in the plan]",
+  "[מחירים אינם בתוכנית]",
 ];
 
 const originalSales = process.env.HUB_SALES_SECTIONS;
@@ -46,6 +52,7 @@ describe("hub sales sections stay off unless the flag is exactly true", () => {
     expect(html.match(/class="portfolioLabel">שלנו</g)).toHaveLength(2);
     expect(html).not.toContain("עסק משפחתי");
     expect(html).not.toContain("Family business");
+    expect(html).not.toContain("של משפחה");
     expect(html).toContain('dir="rtl"');
   });
 
@@ -57,6 +64,7 @@ describe("hub sales sections stay off unless the flag is exactly true", () => {
     expect(html.match(/class="portfolioLabel">Own</g)).toHaveLength(2);
     expect(html).not.toContain("Family business");
     expect(html).not.toContain("עסק משפחתי");
+    expect(html).not.toContain("a family's");
     expect(html).toContain("Coming soon");
     expect(html).toContain('dir="ltr"');
     expect(html).not.toContain('data-section="sales-hero-cta"');
@@ -70,9 +78,20 @@ describe("hub sales sections stay off unless the flag is exactly true", () => {
     expect(isHubSalesEnabled("false")).toBe(false);
   });
 
-  it("renders the sales sections only when the flag is true", () => {
+  it("renders the sales sections only when the flag is true, without refund terms", () => {
     const html = htmlFor("true", "he");
     expect(isHubSalesEnabled("true")).toBe(true);
+    expect(html).not.toContain("החזר");
+    expect(html).not.toContain("14-day");
+    expect(html).not.toContain("money-back");
+    expect(html).toContain("[ניסוח סופי של טוני, גרסה 16]");
+    expect(html).toContain("אין ניסיון חינם.");
+    const english = htmlFor("true", "en");
+    expect(english).not.toContain("14-day");
+    expect(english).not.toContain("money-back");
+    expect(english).not.toContain("refund");
+    expect(english).toContain("[Tony final v16 wording]");
+    expect(english).toContain("No free trial.");
     for (const marker of [
       "sales-build",
       "sales-how",
@@ -95,7 +114,7 @@ describe("public hub links and exclusions", () => {
     for (const url of ["https://minimal-il.com", "https://atelierelenadolls.com", "https://ae-dolls.com"]) {
       expect(hrefs).toContain(url);
       const tag = html.match(new RegExp(`<a[^>]*href="${url}"[^>]*>`));
-      expect(tag?.[0]).toContain('rel="noopener"');
+      expect(tag?.[0]).toContain('rel="noopener noreferrer"');
     }
     expect(html).not.toContain("/today");
     expect(html).not.toContain("/plan");
