@@ -6,6 +6,7 @@ import {
   db,
 } from "@clearpill/db";
 import { getDefaultPilotContext } from "@clearpill/planning-service";
+import { guardPrivatePage } from "../../private-page-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ const horizonLabels: Record<PlanHorizon, string> = {
 };
 
 export default async function PlanPage() {
+  guardPrivatePage();
   if (process.env.DEMO_MODE !== "true") {
     return (
       <section className="emptyState">

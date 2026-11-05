@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["app/**/*.test.tsx", "hub-request.test.ts"],
+    include: ["app/**/*.test.ts", "app/**/*.test.tsx", "hub-request.test.ts"],
   },
   esbuild: {
     jsx: "automatic",
