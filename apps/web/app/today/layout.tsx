@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { guardPrivatePage } from "../../private-page-guard";
 
 export const metadata: Metadata = {
   robots: {
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default function TodayLayout({ children }: { children: React.ReactNode }) {
+  guardPrivatePage();
   return (
     <div lang="he" dir="rtl">
       {children}

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isPrivatePlannerPath, privatePagesEnabled } from "./private-pages";
 
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
+  if (isPrivatePlannerPath(pathname) && !privatePagesEnabled()) {
+    return new NextResponse(null, { status: 404 });
+  }
   const he =
     pathname === "/today" ||
     pathname === "/plan" ||
